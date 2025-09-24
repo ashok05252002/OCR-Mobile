@@ -22,12 +22,12 @@ const DashboardScreen = ({ activeTab, onTabChange, onNavigate }) => {
   ];
 
   const handleHistoryClick = () => {
-    onNavigate('history');
+    onTabChange('history');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <TopBar title="" />
+    <div className="min-h-screen bg-gray-50 pb-24">
+      <TopBar title="" onNavigate={onNavigate} />
       
       <div className="max-w-mobile mx-auto px-4 py-6">
         <motion.div

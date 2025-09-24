@@ -24,7 +24,7 @@ const ApproveScreen = ({ activeTab, onTabChange, onNavigate }) => {
       submissionDate: '2025-01-14',
       submittedBy: 'Sarah Johnson',
       department: 'Marketing',
-      billImage: 'https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/300x400/f3f4f6/1f2937?text=Bill+Receipt',
+      billImage: 'https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/300x400/f3f4f6/1f2937?text=Bill+Receipt',
     },
     {
       id: 2,
@@ -36,7 +36,7 @@ const ApproveScreen = ({ activeTab, onTabChange, onNavigate }) => {
       submissionDate: '2025-01-13',
       submittedBy: 'Mike Chen',
       department: 'IT',
-      billImage: 'https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/300x400/f3f4f6/1f2937?text=Bill+Receipt',
+      billImage: 'https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/300x400/f3f4f6/1f2937?text=Bill+Receipt',
     },
     {
       id: 3,
@@ -48,7 +48,7 @@ const ApproveScreen = ({ activeTab, onTabChange, onNavigate }) => {
       submissionDate: '2025-01-15',
       submittedBy: 'Emily White',
       department: 'Sales',
-      billImage: 'https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/300x400/f3f4f6/1f2937?text=Bill+Receipt',
+      billImage: 'https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/300x400/f3f4f6/1f2937?text=Bill+Receipt',
     },
   ];
 
@@ -82,8 +82,8 @@ const ApproveScreen = ({ activeTab, onTabChange, onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <TopBar title="Approve Bills" />
+    <div className="min-h-screen bg-gray-50 pb-24">
+      <TopBar title="Approve Bills" onNavigate={onNavigate} />
       
       <div className="max-w-mobile mx-auto px-4 py-6">
         <motion.div

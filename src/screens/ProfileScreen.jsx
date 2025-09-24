@@ -2,11 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Button from '../components/Button';
 import Card from '../components/Card';
-import TabBar from '../components/TabBar';
 import TopBar from '../components/TopBar';
 import { User, Mail, Phone, LogOut, Settings, Bell, Shield } from 'lucide-react';
 
-const ProfileScreen = ({ activeTab, onTabChange, onNavigate }) => {
+const ProfileScreen = ({ onNavigate, onBack }) => {
   const userInfo = {
     name: 'John Doe',
     email: 'john.doe@example.com',
@@ -29,19 +28,10 @@ const ProfileScreen = ({ activeTab, onTabChange, onNavigate }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <TopBar title="Profile" />
+    <div className="min-h-screen bg-gray-50 pb-6">
+      <TopBar title="Profile" onBack={onBack} />
       
       <div className="max-w-mobile mx-auto px-4 py-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile</h2>
-          <p className="text-gray-600">Manage your account settings</p>
-        </motion.div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -59,7 +49,7 @@ const ProfileScreen = ({ activeTab, onTabChange, onNavigate }) => {
               </div>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-3 pt-4 border-t border-gray-200">
               <div className="flex items-center">
                 <Mail size={16} className="text-gray-500 mr-3" />
                 <span className="text-gray-700">{userInfo.email}</span>
@@ -78,8 +68,8 @@ const ProfileScreen = ({ activeTab, onTabChange, onNavigate }) => {
           transition={{ delay: 0.2 }}
         >
           <Card className="p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Settings</h3>
-            <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Settings</h3>
+            <div className="space-y-1">
               {menuItems.map((item, index) => (
                 <button
                   key={index}
@@ -88,9 +78,9 @@ const ProfileScreen = ({ activeTab, onTabChange, onNavigate }) => {
                 >
                   <div className="flex items-center">
                     <item.icon size={20} className="text-gray-500 mr-3" />
-                    <span className="text-gray-700">{item.label}</span>
+                    <span className="text-gray-700 font-medium">{item.label}</span>
                   </div>
-                  <span className="text-gray-400">›</span>
+                  <span className="text-gray-400 font-bold text-lg">›</span>
                 </button>
               ))}
             </div>
@@ -112,8 +102,6 @@ const ProfileScreen = ({ activeTab, onTabChange, onNavigate }) => {
           </Button>
         </motion.div>
       </div>
-
-      <TabBar activeTab={activeTab} onTabChange={onTabChange} />
     </div>
   );
 };

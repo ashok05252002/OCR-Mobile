@@ -4,9 +4,9 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import TopBar from '../components/TopBar';
-import { Camera, Upload, FileText, Calendar, Hash, DollarSign, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Camera, Upload, CheckCircle } from 'lucide-react';
 
-const SubmitBillScreen = ({ onNavigate }) => {
+const SubmitBillScreen = ({ onNavigate, onBack }) => {
   const [step, setStep] = useState('upload'); // 'upload', 'preview', 'submitted'
   const [uploadedFile, setUploadedFile] = useState(null);
   const [billData, setBillData] = useState({
@@ -38,14 +38,10 @@ const SubmitBillScreen = ({ onNavigate }) => {
     setBillData({ ...billData, [field]: e.target.value });
   };
 
-  const handleBackToDashboard = () => {
-    onNavigate('dashboard');
-  };
-
   if (step === 'submitted') {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopBar title="Bill Submitted" showNotifications={false} />
+        <TopBar title="Bill Submitted" onBack={onBack} />
         
         <div className="max-w-mobile mx-auto px-4 py-6 flex flex-col justify-center h-screen">
           <motion.div
@@ -116,7 +112,7 @@ const SubmitBillScreen = ({ onNavigate }) => {
               transition={{ delay: 1.2 }}
             >
               <Button
-                onClick={handleBackToDashboard}
+                onClick={() => onNavigate('dashboard')}
                 className="w-full font-bold py-3 text-base"
               >
                 Continue to Dashboard
@@ -131,26 +127,9 @@ const SubmitBillScreen = ({ onNavigate }) => {
   if (step === 'preview') {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopBar title="Review Bill" showNotifications={false} />
+        <TopBar title="Review Bill" onBack={() => setStep('upload')} />
         
         <div className="max-w-mobile mx-auto px-4 py-6">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center mb-6"
-          >
-            <button
-              onClick={() => setStep('upload')}
-              className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Review Details</h2>
-              <p className="text-gray-600">Verify your bill information</p>
-            </div>
-          </motion.div>
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -231,26 +210,9 @@ const SubmitBillScreen = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopBar title="Submit Bill" showNotifications={false} />
+      <TopBar title="Submit Bill" onBack={onBack} />
       
       <div className="max-w-mobile mx-auto px-4 py-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center mb-8"
-        >
-          <button
-            onClick={handleBackToDashboard}
-            className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Submit New Bill</h2>
-            <p className="text-gray-600">Upload your receipt to get started</p>
-          </div>
-        </motion.div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

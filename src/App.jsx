@@ -8,40 +8,42 @@ import ApproveScreen from './screens/ApproveScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import BillDetailScreen from './screens/BillDetailScreen';
 import HistoryScreen from './screens/HistoryScreen';
+import ConfigScreen from './screens/ConfigScreen';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('login');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedBill, setSelectedBill] = useState(null);
+  const [historyStack, setHistoryStack] = useState(['login']);
 
   const handleNavigate = (screen, data = null) => {
+    setHistoryStack(prev => [...prev, screen]);
     setCurrentScreen(screen);
     if (data) {
       setSelectedBill(data);
     }
-    if (screen === 'dashboard') {
-      setActiveTab('dashboard');
+    const mainTabs = ['dashboard', 'approve', 'history', 'config'];
+    if (mainTabs.includes(screen)) {
+      setActiveTab(screen);
+    }
+  };
+
+  const handleBack = () => {
+    const newStack = [...historyStack];
+    newStack.pop();
+    const previousScreen = newStack[newStack.length - 1] || 'login';
+    setHistoryStack(newStack);
+    setCurrentScreen(previousScreen);
+
+    const mainTabs = ['dashboard', 'approve', 'history', 'config'];
+    if (mainTabs.includes(previousScreen)) {
+      setActiveTab(previousScreen);
     }
   };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    switch(tab) {
-      case 'dashboard':
-        setCurrentScreen('dashboard');
-        break;
-      case 'approve':
-        setCurrentScreen('approve');
-        break;
-      case 'history':
-        setCurrentScreen('history');
-        break;
-      case 'profile':
-        setCurrentScreen('profile');
-        break;
-      default:
-        setCurrentScreen('dashboard');
-    }
+    handleNavigate(tab);
   };
 
   const renderScreen = () => {
@@ -49,21 +51,23 @@ function App() {
       case 'login':
         return <LoginScreen onNavigate={handleNavigate} />;
       case 'register':
-        return <RegisterScreen onNavigate={handleNavigate} />;
+        return <RegisterScreen onNavigate={handleNavigate} onBack={handleBack} />;
       case 'forgot-password':
-        return <ForgotPasswordScreen onNavigate={handleNavigate} />;
+        return <ForgotPasswordScreen onNavigate={handleNavigate} onBack={handleBack} />;
       case 'dashboard':
         return <DashboardScreen activeTab={activeTab} onTabChange={handleTabChange} onNavigate={handleNavigate} />;
       case 'submit-bill':
-        return <SubmitBillScreen onNavigate={handleNavigate} />;
+        return <SubmitBillScreen onNavigate={handleNavigate} onBack={handleBack} />;
       case 'approve':
         return <ApproveScreen activeTab={activeTab} onTabChange={handleTabChange} onNavigate={handleNavigate} />;
-      case 'profile':
-        return <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} onNavigate={handleNavigate} />;
-      case 'bill-detail':
-        return <BillDetailScreen bill={selectedBill} onNavigate={handleNavigate} />;
       case 'history':
         return <HistoryScreen activeTab={activeTab} onTabChange={handleTabChange} onNavigate={handleNavigate} />;
+      case 'config':
+        return <ConfigScreen activeTab={activeTab} onTabChange={handleTabChange} onNavigate={handleNavigate} />;
+      case 'profile':
+        return <ProfileScreen onNavigate={handleNavigate} onBack={handleBack} />;
+      case 'bill-detail':
+        return <BillDetailScreen bill={selectedBill} onNavigate={handleNavigate} onBack={handleBack} />;
       default:
         return <LoginScreen onNavigate={handleNavigate} />;
     }

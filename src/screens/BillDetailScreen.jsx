@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import TopBar from '../components/TopBar';
 import Button from '../components/Button';
 import Card from '../components/Card';
-import { ArrowLeft, Download, Edit3, Calendar, FileText, Hash, DollarSign, User, Building } from 'lucide-react';
+import { Download, Edit3, Calendar, FileText, Hash, DollarSign, User, Building } from 'lucide-react';
 
-const BillDetailScreen = ({ bill, onNavigate }) => {
+const BillDetailScreen = ({ bill, onNavigate, onBack }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     vendorName: bill?.vendorName || '',
@@ -17,9 +17,10 @@ const BillDetailScreen = ({ bill, onNavigate }) => {
   if (!bill) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopBar title="Bill Details" showNotifications={false} />
-        <div className="max-w-mobile mx-auto px-4 py-6">
-          <p>Bill not found</p>
+        <TopBar title="Bill Details" onBack={onBack} />
+        <div className="max-w-mobile mx-auto px-4 py-6 text-center">
+          <p className="text-gray-600">Bill not found or has been removed.</p>
+          <Button onClick={onBack} className="mt-4">Go Back</Button>
         </div>
       </div>
     );
@@ -42,19 +43,13 @@ const BillDetailScreen = ({ bill, onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <TopBar title="Bill Details" showNotifications={false} />
+    <div className="min-h-screen bg-gray-50 pb-6">
+      <TopBar title="Bill Details" onBack={onBack} />
       
       <div className="max-w-mobile mx-auto px-4 py-6">
-        <div className="flex items-center mb-6">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="mr-4 p-2 hover:bg-gray-200 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h2 className="text-xl font-semibold text-gray-900">Bill Details</h2>
-          <span className={`ml-auto px-3 py-1 rounded-full text-sm font-medium border ${statusColors[bill.status]}`}>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Bill Summary</h2>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusColors[bill.status]}`}>
             {bill.status.charAt(0).toUpperCase() + bill.status.slice(1)}
           </span>
         </div>
@@ -78,7 +73,7 @@ const BillDetailScreen = ({ bill, onNavigate }) => {
             
             <div className="bg-gray-100 rounded-xl p-4 mb-4">
               <img 
-                src={bill.billImage || 'https://img-wrapper.vercel.app/image?url=https://placehold.co/300x400/f3f4f6/1f2937?text=Bill+Receipt'} 
+                src={bill.billImage || 'https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/300x400/f3f4f6/1f2937?text=Bill+Receipt'} 
                 alt="Bill Receipt" 
                 className="w-full h-64 object-cover rounded-lg"
               />
