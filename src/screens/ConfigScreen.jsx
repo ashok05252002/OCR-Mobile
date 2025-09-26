@@ -14,7 +14,7 @@ const mockConfigs = [
     name: 'Manager Expenses', 
     role: 'Manager', 
     categories: {
-      'Travel': { enabled: true, allocation: '', unlimitedAllocation: true, carryForwardEnabled: true, unlimitedCarryForward: true, maxCarryForward: '' },
+      'Travel': { enabled: true, allocation: '', unlimitedAllocation: true, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
       'Food': { enabled: true, allocation: '2000', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
       'Office Supplies': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
       'Software': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
@@ -66,15 +66,19 @@ const ConfigScreen = ({ activeTab, onTabChange, onNavigate }) => {
       const newCategories = { ...prev.categories };
       const categoryState = { ...newCategories[category], [field]: value };
 
-      // Mutually exclusive allocation
+      // If allocation is unlimited, disable amount and reset carry forward
       if (field === 'unlimitedAllocation' && value === true) {
         categoryState.allocation = '';
+        categoryState.carryForwardEnabled = false;
+        categoryState.unlimitedCarryForward = false;
+        categoryState.maxCarryForward = '';
       }
+      // If an amount is entered, disable unlimited allocation
       if (field === 'allocation' && value !== '') {
         categoryState.unlimitedAllocation = false;
       }
       
-      // Mutually exclusive carry forward
+      // Mutually exclusive carry forward options
       if (field === 'unlimitedCarryForward' && value === true) {
         categoryState.maxCarryForward = '';
       }
@@ -211,19 +215,30 @@ const ConfigScreen = ({ activeTab, onTabChange, onNavigate }) => {
                                 </div>
                               </div>
                               
-                              <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
-                                <span className="text-sm font-medium">Enable Carry Forward</span>
-                                <ToggleSwitch enabled={formState.categories[cat].carryForwardEnabled} setEnabled={val => handleCategoryUpdate(cat, 'carryForwardEnabled', val)} />
-                              </div>
-
                               <AnimatePresence>
-                                {formState.categories[cat].carryForwardEnabled && (
-                                  <motion.div initial={{opacity: 0, height: 0}} animate={{opacity: 1, height: 'auto'}} exit={{opacity: 0, height: 0}} className="mt-2 space-y-2 pl-2 border-l-2 border-primary ml-2">
-                                    <div className="flex items-center">
-                                      <input type="checkbox" id={`unlimited-${cat}`} checked={formState.categories[cat].unlimitedCarryForward} onChange={e => handleCategoryUpdate(cat, 'unlimitedCarryForward', e.target.checked)} className="h-4 w-4 rounded text-primary focus:ring-primary"/>
-                                      <label htmlFor={`unlimited-${cat}`} className="ml-2 text-sm text-gray-700">Unlimited Carry Forward</label>
+                                {!formState.categories[cat].unlimitedAllocation && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="space-y-3"
+                                  >
+                                    <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                                      <span className="text-sm font-medium">Enable Carry Forward</span>
+                                      <ToggleSwitch enabled={formState.categories[cat].carryForwardEnabled} setEnabled={val => handleCategoryUpdate(cat, 'carryForwardEnabled', val)} />
                                     </div>
-                                    <Input type="number" placeholder="Max Carry Amount" value={formState.categories[cat].maxCarryForward} onChange={e => handleCategoryUpdate(cat, 'maxCarryForward', e.target.value)} disabled={formState.categories[cat].unlimitedCarryForward} className="mb-0 text-sm" />
+
+                                    <AnimatePresence>
+                                      {formState.categories[cat].carryForwardEnabled && (
+                                        <motion.div initial={{opacity: 0, height: 0}} animate={{opacity: 1, height: 'auto'}} exit={{opacity: 0, height: 0}} className="mt-2 space-y-2 pl-2 border-l-2 border-primary ml-2">
+                                          <div className="flex items-center">
+                                            <input type="checkbox" id={`unlimited-${cat}`} checked={formState.categories[cat].unlimitedCarryForward} onChange={e => handleCategoryUpdate(cat, 'unlimitedCarryForward', e.target.checked)} className="h-4 w-4 rounded text-primary focus:ring-primary"/>
+                                            <label htmlFor={`unlimited-${cat}`} className="ml-2 text-sm text-gray-700">Unlimited Carry Forward</label>
+                                          </div>
+                                          <Input type="number" placeholder="Max Carry Amount" value={formState.categories[cat].maxCarryForward} onChange={e => handleCategoryUpdate(cat, 'maxCarryForward', e.target.value)} disabled={formState.categories[cat].unlimitedCarryForward} className="mb-0 text-sm" />
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
