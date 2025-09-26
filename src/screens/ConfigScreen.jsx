@@ -14,8 +14,12 @@ const mockConfigs = [
     name: 'Manager Expenses', 
     role: 'Manager', 
     categories: {
-      'Travel': { enabled: true, allocation: '3000', carryForwardEnabled: true, unlimitedCarryForward: true, maxCarryForward: '' },
-      'Food': { enabled: true, allocation: '2000', carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Travel': { enabled: true, allocation: '', unlimitedAllocation: true, carryForwardEnabled: true, unlimitedCarryForward: true, maxCarryForward: '' },
+      'Food': { enabled: true, allocation: '2000', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Office Supplies': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Software': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Training': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Miscellaneous': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
     }
   },
   { 
@@ -23,8 +27,12 @@ const mockConfigs = [
     name: 'Employee General', 
     role: 'Employee', 
     categories: {
-      'Office Supplies': { enabled: true, allocation: '300', carryForwardEnabled: true, unlimitedCarryForward: false, maxCarryForward: '100' },
-      'Food': { enabled: true, allocation: '200', carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Office Supplies': { enabled: true, allocation: '300', unlimitedAllocation: false, carryForwardEnabled: true, unlimitedCarryForward: false, maxCarryForward: '100' },
+      'Food': { enabled: true, allocation: '200', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Travel': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Software': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Training': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
+      'Miscellaneous': { enabled: false, allocation: '', unlimitedAllocation: false, carryForwardEnabled: false, unlimitedCarryForward: false, maxCarryForward: '' },
     }
   },
 ];
@@ -36,6 +44,7 @@ const initialCategoryState = mockCategories.reduce((acc, cat) => {
   acc[cat] = {
     enabled: false,
     allocation: '',
+    unlimitedAllocation: false,
     carryForwardEnabled: false,
     unlimitedCarryForward: false,
     maxCarryForward: '',
@@ -57,7 +66,15 @@ const ConfigScreen = ({ activeTab, onTabChange, onNavigate }) => {
       const newCategories = { ...prev.categories };
       const categoryState = { ...newCategories[category], [field]: value };
 
-      // Logic for mutually exclusive unlimited/max amount
+      // Mutually exclusive allocation
+      if (field === 'unlimitedAllocation' && value === true) {
+        categoryState.allocation = '';
+      }
+      if (field === 'allocation' && value !== '') {
+        categoryState.unlimitedAllocation = false;
+      }
+      
+      // Mutually exclusive carry forward
       if (field === 'unlimitedCarryForward' && value === true) {
         categoryState.maxCarryForward = '';
       }
@@ -90,9 +107,19 @@ const ConfigScreen = ({ activeTab, onTabChange, onNavigate }) => {
       .filter(([, details]) => details.enabled)
       .map(([name]) => name);
       
-    const totalBudget = Object.values(config.categories || {})
-      .filter(details => details.enabled)
-      .reduce((sum, details) => sum + (Number(details.allocation) || 0), 0);
+    const numericAllocations = Object.values(config.categories || {})
+      .filter(details => details.enabled && !details.unlimitedAllocation && details.allocation)
+      .reduce((sum, details) => sum + Number(details.allocation), 0);
+
+    const hasUnlimited = Object.values(config.categories || {})
+      .some(details => details.enabled && details.unlimitedAllocation);
+
+    let totalBudgetText;
+    if (hasUnlimited) {
+        totalBudgetText = numericAllocations > 0 ? `$${numericAllocations.toLocaleString()} + Unlimited` : 'Unlimited';
+    } else {
+        totalBudgetText = `$${numericAllocations.toLocaleString()}`;
+    }
 
     const carryForwardEnabledCount = Object.values(config.categories || {})
       .filter(details => details.enabled && details.carryForwardEnabled)
@@ -103,7 +130,7 @@ const ConfigScreen = ({ activeTab, onTabChange, onNavigate }) => {
         carryForwardText = `Enabled for ${carryForwardEnabledCount} cat.`;
     }
 
-    return { enabledCategories, totalBudget, carryForwardText };
+    return { enabledCategories, totalBudgetText, carryForwardText };
   }
 
   return (
@@ -163,7 +190,26 @@ const ConfigScreen = ({ activeTab, onTabChange, onNavigate }) => {
                           <AnimatePresence>
                           {formState.categories[cat].enabled && (
                             <motion.div initial={{opacity: 0, height: 0}} animate={{opacity: 1, height: 'auto'}} exit={{opacity: 0, height: 0}} className="mt-3 space-y-3 pl-1">
-                              <Input type="number" placeholder="Allocation Amount" value={formState.categories[cat].allocation} onChange={e => handleCategoryUpdate(cat, 'allocation', e.target.value)} className="mb-0" />
+                              <div className="flex items-center space-x-3">
+                                <Input 
+                                  type="number" 
+                                  placeholder="Amount" 
+                                  value={formState.categories[cat].allocation} 
+                                  onChange={e => handleCategoryUpdate(cat, 'allocation', e.target.value)} 
+                                  disabled={formState.categories[cat].unlimitedAllocation}
+                                  className="mb-0 flex-1" 
+                                />
+                                <div className="flex items-center">
+                                  <input 
+                                    type="checkbox" 
+                                    id={`unlimited-alloc-${cat}`} 
+                                    checked={formState.categories[cat].unlimitedAllocation} 
+                                    onChange={e => handleCategoryUpdate(cat, 'unlimitedAllocation', e.target.checked)}
+                                    className="h-4 w-4 rounded text-primary focus:ring-primary"
+                                  />
+                                  <label htmlFor={`unlimited-alloc-${cat}`} className="ml-2 text-sm text-gray-700">Unlimited</label>
+                                </div>
+                              </div>
                               
                               <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
                                 <span className="text-sm font-medium">Enable Carry Forward</span>
@@ -196,7 +242,7 @@ const ConfigScreen = ({ activeTab, onTabChange, onNavigate }) => {
 
         <div className="space-y-4">
           {configs.map((config, index) => {
-            const { enabledCategories, totalBudget, carryForwardText } = getConfigDetails(config);
+            const { enabledCategories, totalBudgetText, carryForwardText } = getConfigDetails(config);
             return (
               <motion.div key={config.id} initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{delay: index * 0.1}}>
                 <Card className="p-4">
@@ -217,7 +263,7 @@ const ConfigScreen = ({ activeTab, onTabChange, onNavigate }) => {
                   </div>
                   <div className="border-t mt-3 pt-3 flex justify-between text-sm">
                     <div className="flex items-center text-gray-700">
-                      <CircleDollarSign size={14} className="mr-2 text-green-600"/> Budget: <span className="font-medium ml-1">${totalBudget.toLocaleString()}</span>
+                      <CircleDollarSign size={14} className="mr-2 text-green-600"/> Budget: <span className="font-medium ml-1">{totalBudgetText}</span>
                     </div>
                     <div className="flex items-center text-gray-700">
                       <ChevronsRight size={14} className="mr-2 text-blue-600"/> Carry: <span className="font-medium ml-1">{carryForwardText}</span>
